@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taskly - Lista de Proyectos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+        .sidebar { transition: all 0.3s ease; }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); position: absolute; z-index: 10; height: 100vh; }
+            .sidebar-open { transform: translateX(0); }
+        }
+        .project-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .progress-bar { height: 8px; border-radius: 4px; background-color: #e5e7eb; }
+        .progress-fill { height: 100%; border-radius: 4px; background-color: var(--primary); transition: width 0.3s ease; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Sidebar, header, cards de proyectos, buscador, botones de acción, etc. -->
+    <!-- Todo en HTML puro, igual que las plantillas de tareas y dashboard -->
+</body>
+</html>

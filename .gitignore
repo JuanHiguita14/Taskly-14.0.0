@@ -1,0 +1,50 @@
+# Dependencies
+/vendor/
+/node_modules/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# IDE
+/.idea
+/.vscode
+/.fleet
+/.nova
+/.zed
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Cache
+.phpunit.cache
+.phpunit.result.cache
+
+# Build files
+/public/build
+/public/hot
+/public/storage
+
+# Sensitive files
+auth.json
+Homestead.json
+Homestead.yaml
+READMI.TXT
+
+# Laravel specific
+/storage/*.key
+/storage/pail
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*
+!/storage/framework/cache/.gitignore
+!/storage/framework/sessions/.gitignore
+!/storage/framework/views/.gitignore
+!/storage/logs/.gitignore
+

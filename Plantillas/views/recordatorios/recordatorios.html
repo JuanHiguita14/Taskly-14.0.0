@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TaskMaster - Panel Estudiantil</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600&display=swap');
+
+    body {
+        font-family: 'Nunito', sans-serif;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        min-height: 100vh;
+        color: #fff;
+        display: flex;
+        margin: 0;
+    }
+    /* Sidebar */
+    .sidebar {
+        background: #4b3f72;
+        width: 220px;
+        min-height: 100vh;
+        padding-top: 2rem;
+        position: fixed;
+        top: 0;
+        left: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+        z-index: 100;
+    }
+    .sidebar .logo {
+        font-size: 1.8rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: #fff;
+        margin-bottom: 2rem;
+    }
+    .sidebar a {
+        text-decoration: none;
+        color: #ddd;
+        font-weight: 600;
+        width: 100%;
+        padding: 0.8rem 1.2rem;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    .sidebar a:hover, .sidebar a.active {
+        background: #fff;
+        color: #4b3f72;
+        font-weight: 700;
+    }
+    .sidebar a i {
+        font-size: 1.4rem;
+    }
+
+    /* Main content */
+    .main-content {
+        margin-left: 220px;
+        padding: 3rem 3rem 3rem 2rem;
+        flex-grow: 1;
+        overflow-x: hidden;
+    }
+
+    /* Header recordatorios */
+    .header-recordatorios {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .header-recordatorios h2 {
+        margin: 0;
+        font-weight: 700;
+    }
+    .btn-custom {
+        background: #fff;
+        color: #4b3f72;
+        font-weight: 700;
+        border-radius: 50px;
+        padding: 0.6rem 1.8rem;
+        border: none;
+        box-shadow: 0 4px 10px rgba(255, 255, 255, 0.6);
+        transition: background-color 0.3s ease, color 0.3s ease;
+        white-space: nowrap;
+    }
+    .btn-custom:hover {
+        background: #e6e6e6;
+        color: #3a2f55;
+    }
+
+    /* Cards recordatorios */
+    .reminder-card {
+        border-left: 5px solid #0d6efd;
+        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        color: #fff;
+        transition: transform 0.2s ease;
+    }
+    .reminder-card:hover {
+        transform: scale(1.03);
+        background: rgba(255, 255, 255, 0.2);
+    }
+    .reminder-card .card-body {
+        padding: 1.25rem 1.5rem;
+    }
+
+    /* Tarjeticas Tareas y Proyectos */
+    .section-title {
+        margin-top: 3rem;
+        margin-bottom: 1.5rem;
+        font-weight: 700;
+        font-size: 1.8rem;
+        border-bottom: 3px solid #fff;
+        padding-bottom: 0.25rem;
+        max-width: max-content;
+    }
+    .task-card, .project-card {
+        background: rgba(255, 255, 255, 0.15);
+        padding: 1rem 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        margin-bottom: 1.25rem;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        color: #fff;
+    }
+    .task-card:hover, .project-card:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-5px);
+    }
+    .task-card h5, .project-card h5 {
+        font-weight: 700;
+        margin-bottom: 0.4rem;
+    }
+    .task-card p, .project-card p {
+        opacity: 0.9;
+        margin-bottom: 0.5rem;
+    }
+    .task-card small, .project-card small {
+        opacity: 0.7;
+        font-style: italic;
+        font-size: 0.9rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .sidebar {
+            position: relative;
+            width: 100%;
+            min-height: auto;
+            flex-direction: row;
+            padding: 0.5rem;
+            justify-content: space-around;
+            box-shadow: none;
+        }
+        .sidebar a {
+            padding: 0.5rem 0.8rem;
+            font-size: 0.9rem;
+            border-radius: 0;
+        }
+        .main-content {
+            margin-left: 0;
+            padding: 2rem 1rem;
+        }
+        .section-title {
+            font-size: 1.5rem;
+        }
+        .btn-custom {
+            padding: 0.5rem 1.2rem;
+            font-size: 0.9rem;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="logo">Taskly</div>
+
+    <a href="../inicio.html" ><i class="bi bi-house-door-fill"></i>Inicio </a>
+    <a href="../tareas/lista.html"><i class="bi bi-journal-check"></i> Tareas</a>
+    <a href="../proyectos/lista.html"><i class="bi bi-kanban"></i> Proyectos</a>
+      <a href="recordatorios/recordatorios.html" class="active" ><i class="bi bi-bell-fill"></i> Recordatorios</a>
+    <a href="encabezado/calendario.html"><i class="bi bi-calendar3"></i> Calendario</a>
+    <a href="encabezado/configuracion.html"><i class="bi bi-gear"></i> Configuración</a>
+    <a href="encabezado/calificacion.html"><i class="bi bi-star-half"></i> Calificación</a>
+    <a href="cerrarsesion.html" onclick="return confirm('¿Estás seguro de que deseas cerrar sesión?');">
+        <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+    </a>
+</div>
+
+<div class="main-content">
+
+    <div class="header-recordatorios">
+        <h2>Recordatorios</h2>
+        <button class="btn-custom"><i class="bi bi-plus me-2"></i>Agregar Recordatorio</button>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-4">
+          <div class="card reminder-card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Entrega de Proyecto</h5>
+              <p class="card-text">Fecha límite: 10 de junio</p>
+              <span class="badge bg-danger">Alta prioridad</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="card reminder-card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Revisión de Tarea</h5>
+              <p class="card-text">Fecha límite: 8 de junio</p>
+              <span class="badge bg-warning text-dark">Media prioridad</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="card reminder-card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Estudiar para el examen</h5>
+              <p class="card-text">Fecha límite: 9 de junio</p>
+              <span class="badge bg-success">Baja prioridad</span>
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <!-- Sección Tareas -->
+    <h2 class="section-title">Tareas</h2>
+    <div class="task-card">
+      <h5>Tarea 1</h5>
+      <p>Descripción breve de la tarea 1.</p>
+      <small>Fecha de entrega: 2025-06-10</small>
+    </div>
+    <div class="task-card">
+      <h5>Tarea 2</h5>
+      <p>Descripción breve de la tarea 2.</p>
+      <small>Fecha de entrega: 2025-06-15</small>
+    </div>
+
+    <!-- Sección Proyectos -->
+    <h2 class="section-title">Proyectos</h2>
+    <div class="project-card">
+      <h5>Proyecto A</h5>
+      <p>Descripción breve del proyecto A.</p>
+      <small>Fecha inicio: 2025-05-01 | Fecha fin: 2025-08-01</small>
+    </div>
+    <div class="project-card">
+      <h5>Proyecto B</h5>
+      <p>Descripción breve del proyecto B.</p>
+      <small>Fecha inicio: 2025-04-10 | Fecha fin: 2025-07-10</small>
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taskly - Calendario</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        .task-priority-high {
+            border-left: 4px solid var(--danger);
+        }
+
+        .task-priority-medium {
+            border-left: 4px solid var(--warning);
+        }
+
+        .task-priority-low {
+            border-left: 4px solid var(--secondary);
+        }
+
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e5e7eb;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            background-color: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: absolute;
+                z-index: 10;
+                height: 100vh;
+            }
+
+            .sidebar-open {
+                transform: translateX(0);
+            }
+        }
+
+        .task-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .calendar-day:hover {
+            background-color: #f3f4f6;
+            transform: scale(1.02);
+        }
+
+        .calendar-day.today {
+            background-color: #e0e7ff;
+            border: 2px solid var(--primary);
+        }
+
+        .event-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 4px;
+        }
+
+        .fc-event {
+            cursor: pointer;
+            border-radius: 4px;
+            padding: 2px 4px;
+            margin-bottom: 2px;
+            font-size: 0.85rem;
+        }
+
+        .fc-daygrid-event {
+            white-space: normal;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="sidebar bg-white w-64 border-r border-gray-200 flex flex-col">
+            <div class="p-4 border-b border-gray-200">
+                <h1 class="text-2xl font-bold text-indigo-600 flex items-center">
+                    <i class="fas fa-graduation-cap mr-2"></i> Taskly
+                </h1>
+                <p class="text-sm text-gray-500">Organiza tu éxito académico</p>
+            </div>
+
+            <div class="flex-1 overflow-y-auto">
+                <nav class="p-4">
+                    <div class="mb-6">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Menú</h3>
+                        <ul>
+                            <li class="mb-1">
+                                <a href="../inicio.html" class="flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50">
+                                    <i class="fas fa-tachometer-alt mr-3 text-gray-500"></i> Dashboard
+                                </a>
+                            </li>
+                            <li class="mb-1">
+                                <a href="../tareas/lista.html" class="flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50">
+                                    <i class="fas fa-tasks mr-3 text-gray-500"></i> Tareas
+                                </a>
+                            </li>
+                            <li class="mb-1">
+                                <a href="../proyectos/lista.html" class="flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50">
+                                    <i class="fas fa-project-diagram mr-3 text-gray-500"></i> Proyectos
+                                </a>
+                            </li>
+                            <li class="mb-1">
+                                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-indigo-50 text-indigo-700">
+                                    <i class="fas fa-calendar-alt mr-3 text-indigo-500"></i> Calendario
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Mis Cursos</h3>
+                        <ul>
+                            <li class="mb-1">
+                                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50">
+                                    <span class="w-2 h-2 mr-3 rounded-full bg-green-500"></span> Matemáticas
+                                </a>
+                            </li>
+                            <li class="mb-1">
+                                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50">
+                                    <span class="w-2 h-2 mr-3 rounded-full bg-blue-500"></span> Física
+                                </a>
+                            </li>
+                            <li class="mb-1">
+                                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50">
+                                    <span class="w-2 h-2 mr-3 rounded-full bg-purple-500"></span> Programación
+                                </a>
+                            </li>
+                            <li class="mb-1">
+                                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50">
+                                    <span class="w-2 h-2 mr-3 rounded-full bg-yellow-500"></span> Historia
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Etiquetas</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">Examen</span>
+                            <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">Tarea</span>
+                            <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Proyecto</span>
+                            <span class="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-800">Lectura</span>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+
+            <div class="p-4 border-t border-gray-200">
+                <div class="flex items-center">
+                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" class="w-8 h-8 rounded-full mr-2">
+                    <div>
+                        <p class="text-sm font-medium">Ana Martínez</p>
+                        <p class="text-xs text-gray-500">Estudiante</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="bg-white border-b border-gray-200">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <div class="flex items-center">
+                        <button id="sidebarToggle" class="mr-4 text-gray-500 md:hidden">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h2 class="text-xl font-semibold text-gray-800">Calendario Académico</h2>
+                    </div>
+
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <button class="p-1 text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-bell"></i>
+                                <span class="absolute top-0 right-0 w-2 h-2 rounded-full bg-red-500"></span>
+                            </button>
+                        </div>
+                        <div class="relative">
+                            <input type="text" placeholder="Buscar eventos..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <main class="flex-1 overflow-y-auto p-6">
+                <!-- Calendar Navigation -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                    <div class="flex items-center mb-4 md:mb-0">
+                        <button id="prevMonth" class="p-2 rounded-full hover:bg-gray-100 mr-2">
+                            <i class="fas fa-chevron-left text-gray-600"></i>
+                        </button>
+                        <h3 class="text-xl font-semibold text-gray-800" id="currentMonthYear">Mayo 2023</h3>
+                        <button id="nextMonth" class="p-2 rounded-full hover:bg-gray-100 ml-2">
+                            <i class="fas fa-chevron-right text-gray-600"></i>
+                        </button>
+                        <button id="todayBtn" class="ml-4 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Hoy
+                        </button>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <button id="dayView" class="px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            Día
+                        </button>
+                        <button id="weekView" class="px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            Semana
+                        </button>
+                        <button id="monthView" class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Mes
+                        </button>
+                        <button id="addEventBtn" class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-plus mr-1"></i> Nuevo Evento
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Calendar View -->
+                <div id="calendarView" class="bg-white rounded-lg shadow overflow-hidden">
+                    <!-- Weekday Headers -->
+                    <div class="grid grid-cols-7 bg-gray-50 border-b border-gray-200">
+                        <div class="py-3 text-center text-sm font-medium text-gray-500">Domingo</div>
+                        <div class="py-3 text-center text-sm font-medium text-gray-500">Lunes</div>
+                        <div class="py-3 text-center text-sm font-medium text-gray-500">Martes</div>
+                        <div class="py-3 text-center text-sm font-medium text-gray-500">Miércoles</div>
+                        <div class="py-3 text-center text-sm font-medium text-gray-500">Jueves</div>
+                        <div class="py-3 text-center text-sm font-medium text-gray-500">Viernes</div>
+                        <div class="py-3 text-center text-sm font-medium text-gray-500">Sábado</div>
+                    </div>
+
+                    <!-- Calendar Days -->
+                    <div class="grid grid-cols-7 auto-rows-fr" style="min-height: 600px;">
+                        <!-- Previous Month Days -->
+                        <div class="border border-gray-100 p-2 text-gray-400 bg-gray-50">
+                            <div class="text-right">28</div>
+                        </div>
+                        <div class="border border-gray-100 p-2 text-gray-400 bg-gray-50">
+                            <div class="text-right">29</div>
+                        </div>
+                        <div class="border border-gray-100 p-2 text-gray-400 bg-gray-50">
+                            <div class="text-right">30</div>
+                        </div>
+                        
+                        <!-- Current Month Days -->
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">1</div>
+                            <div class="mt-1 space-y-1">
+                                <div class="fc-event bg-blue-100 text-blue-800">Revisión álgebra</div>
+                            </div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">2</div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">3</div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">4</div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">5</div>
+                            <div class="mt-1 space-y-1">
+                                <div class="fc-event bg-green-100 text-green-800">Entrega proyecto historia</div>
+                            </div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">6</div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">7</div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">8</div>
+                            <div class="mt-1 space-y-1">
+                                <div class="fc-event bg-purple-100 text-purple-800">Lectura cap. 5</div>
+                            </div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">9</div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">10</div>
+                            <div class="mt-1 space-y-1">
+                                <div class="fc-event bg-red-100 text-red-800">Examen parcial</div>
+                            </div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">11</div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">12</div>
+                            <div class="mt-1 space-y-1">
+                                <div class="fc-event bg-gray-100 text-gray-800">Reunión grupo estudio</div>
+                            </div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">13</div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">14</div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day today">
+                            <div class="text-right font-bold">15</div>
+                            <div class="mt-1 space-y-1">
+                                <div class="fc-event bg-blue-100 text-blue-800">Tarea de física</div>
+                                <div class="fc-event bg-red-100 text-red-800">Examen matemáticas</div>
+                            </div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">16</div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">17</div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">18</div>
+                            <div class="mt-1 space-y-1">
+                                <div class="fc-event bg-yellow-100 text-yellow-800">Entrega práctica</div>
+                            </div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">19</div>
+                            <div class="mt-1 space-y-1">
+                                <div class="fc-event bg-green-100 text-green-800">Investigación física</div>
+                            </div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">20</div>
+                            <div class="mt-1 space-y-1">
+                                <div class="fc-event bg-purple-100 text-purple-800">Lecturas pendientes</div>
+                            </div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">21</div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">22</div>
+                            <div class="mt-1 space-y-1">
+                                <div class="fc-event bg-red-100 text-red-800">Examen física</div>
+                            </div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">23</div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">24</div>
+                            <div class="mt-1 space-y-1">
+                                <div class="fc-event bg-blue-100 text-blue-800">Seminario programación</div>
+                            </div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">25</div>
+                            <div class="mt-1 space-y-1">
+                                <div class="fc-event bg-green-100 text-green-800">Entrega proyecto final</div>
+                            </div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">26</div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">27</div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">28</div>
+                            <div class="mt-1 space-y-1">
+                                <div class="fc-event bg-gray-100 text-gray-800">Repaso general</div>
+                            </div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">29</div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">30</div>
+                        </div>
+                        <div class="border border-gray-100 p-2 calendar-day">
+                            <div class="text-right">31</div>
+                        </div>
+                        
+                        <!-- Next Month Days -->
+                        <div class="border border-gray-100 p-2 text-gray-400 bg-gray-50">
+                            <div class="text-right">1</div>
+                        </div>
+                        <div class="border border-gray-100 p-2 text-gray-400 bg-gray-50">
+                            <div class="text-right">2</div>
+                        </div>
+                        <div class="border border-gray-100 p-2 text-gray-400 bg-gray-50">
+                            <div class="text-right">3</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upcoming Events -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+                    <!-- Upcoming Events -->
+                    <div class="bg-white rounded-lg shadow overflow-hidden lg:col-span-2">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900">Próximos Eventos</h3>
+                        </div>
+
+                        <div class="divide-y divide-gray-200">
+                            <div class="p-6 hover:bg-gray-50">
+                                <div class="flex items-start">
+                                    <div class="p-2 rounded-lg bg-red-100 text-red-800 mr-4">
+                                        <i class="fas fa-calendar-check"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="text-md font-medium text-gray-900">Examen de Matemáticas</h4>
+                                        <p class="text-sm text-gray-500 mt-1">Álgebra lineal - Capítulo 4</p>
+                                        <div class="flex items-center text-sm text-gray-500 mt-2">
+                                            <i class="far fa-clock mr-2"></i>
+                                            <span>15 Mayo, 2023 - 10:00 AM</span>
+                                            <span class="ml-4 px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">Alta Prioridad</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex space-x-2 ml-4">
+                                        <button class="text-gray-400 hover:text-indigo-600">
+                                            <i class="far fa-edit"></i>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-red-600">
+                                            <i class="far fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-6 hover:bg-gray-50">
+                                <div class="flex items-start">
+                                    <div class="p-2 rounded-lg bg-blue-100 text-blue-800 mr-4">
+                                        <i class="fas fa-tasks"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="text-md font-medium text-gray-900">Tarea de Física</h4>
+                                        <p class="text-sm text-gray-500 mt-1">Problemas de termodinámica</p>
+                                        <div class="flex items-center text-sm text-gray-500 mt-2">
+                                            <i class="far fa-clock mr-2"></i>
+                                            <span>15 Mayo, 2023 - 11:59 PM</span>
+                                            <span class="ml-4 px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Media Prioridad</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex space-x-2 ml-4">
+                                        <button class="text-gray-400 hover:text-indigo-600">
+                                            <i class="far fa-edit"></i>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-red-600">
+                                            <i class="far fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-6 hover:bg-gray-50">
+                                <div class="flex items-start">
+                                    <div class="p-2 rounded-lg bg-green-100 text-green-800 mr-4">
+                                        <i class="fas fa-project-diagram"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="text-md font-medium text-gray-900">Entrega Proyecto Final</h4>
+                                        <p class="text-sm text-gray-500 mt-1">Sistema de gestión escolar</p>
+                                        <div class="flex items-center text-sm text-gray-500 mt-2">
+                                            <i class="far fa-clock mr-2"></i>
+                                            <span>25 Mayo, 2023 - 03:00 PM</span>
+                                            <span class="ml-4 px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">Alta Prioridad</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex space-x-2 ml-4">
+                                        <button class="text-gray-400 hover:text-indigo-600">
+                                            <i class="far fa-edit"></i>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-red-600">
+                                            <i class="far fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Event Types Summary -->
+                    <div>
+                        <div class="bg-white rounded-lg shadow overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-200">
+                                <h3 class="text-lg font-medium text-gray-900">Resumen de Eventos</h3>
+                            </div>
+
+                            <div class="p-6">
+                                <div class="mb-4">
+                                    <h4 class="text-sm font-medium text-gray-500 mb-2">Eventos este mes</h4>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <span class="event-dot bg-red-500"></span>
+                                            <span class="text-sm">Exámenes (3)</span>
+                                        </div>
+                                        <span class="text-sm font-medium">25%</span>
+                                    </div>
+                                    <div class="progress-bar mt-1">
+                                        <div class="progress-fill" style="width: 25%; background-color: var(--danger);"></div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <span class="event-dot bg-blue-500"></span>
+                                            <span class="text-sm">Tareas (6)</span>
+                                        </div>
+                                        <span class="text-sm font-medium">50%</span>
+                                    </div>
+                                    <div class="progress-bar mt-1">
+                                        <div class="progress-fill" style="width: 50%; background-color: var(--primary);"></div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <span class="event-dot bg-green-500"></span>
+                                            <span class="text-sm">Proyectos (2)</span>
+                                        </div>
+                                        <span class="text-sm font-medium">16.7%</span>
+                                    </div>
+                                    <div class="progress-bar mt-1">
+                                        <div class="progress-fill" style="width: 16.7%; background-color: var(--secondary);"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <span class="event-dot bg-purple-500"></span>
+                                            <span class="text-sm">Lecturas (1)</span>
+                                        </div>
+                                        <span class="text-sm font-medium">8.3%</span>
+                                    </div>
+                                    <div class="progress-bar mt-1">
+                                        <div class="progress-fill" style="width: 8.3%; background-color: #8b5cf6;"></div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-6 bg-indigo-50 rounded-lg p-4">
+                                    <h4 class="text-sm font-medium text-indigo-800 mb-2">Eventos completados</h4>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                            <span class="text-sm">2 de 12 eventos</span>
+                                        </div>
+                                        <span class="text-sm font-medium text-indigo-800">16.7%</span>
+                                    </div>
+                                    <div class="progress-bar mt-2 bg-white">
+                                        <div class="progress-fill" style="width: 16.7%; background-color: var(--secondary);"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add Event Modal -->
+    <div id="eventModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <i class="fas fa-calendar-plus text-indigo-600"></i>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modalTitle">Nuevo Evento</h3>
+                            <div class="mt-2">
+                                <form id="eventForm">
+                                    <div class="mb-4">
+                                        <label for="eventTitle" class="block text-sm font-medium text-gray-700">Título del Evento</label>
+                                        <input type="text" id="eventTitle" name="eventTitle" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <div>
+                                            <label for="eventDate" class="block text-sm font-medium text-gray-700">Fecha</label>
+                                            <input type="date" id="eventDate" name="eventDate" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                        </div>
+                                        <div>
+                                            <label for="eventTime" class="block text-sm font-medium text-gray-700">Hora</label>
+                                            <input type="time" id="eventTime" name="eventTime" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <label for="eventCourse" class="block text-sm font-medium text-gray-700">Materia</label>
+                                        <select id="eventCourse" name="eventCourse" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                            <option>Seleccionar</option>
+                                            <option>Matemáticas</option>
+                                            <option>Física</option>
+                                            <option>Programación</option>
+                                            <option>Historia</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <label for="eventType" class="block text-sm font-medium text-gray-700">Tipo de Evento</label>
+                                        <select id="eventType" name="eventType" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                            <option>Tarea</option>
+                                            <option>Examen</option>
+                                            <option>Proyecto</option>
+                                            <option>Lectura</option>
+                                            <option>Reunión</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <label for="eventPriority" class="block text-sm font-medium text-gray-700">Prioridad</label>
+                                        <select id="eventPriority" name="eventPriority" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                            <option>Alta</option>
+                                            <option>Media</option>
+                                            <option>Baja</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <label for="eventDescription" class="block text-sm font-medium text-gray-700">Descripción</label>
+                                        <textarea id="eventDescription" name="eventDescription" rows="3" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"></textarea>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" id="saveEventBtn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Guardar Evento
+                    </button>
+                    <button type="button" id="cancelEventBtn" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Event Modal -->
+    <div id="viewEventModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="mb-4">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="viewEventTitle">Examen de Matemáticas</h3>
+                            <div id="viewEventPriority" class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">Alta Prioridad</div>
+                        </div>
+                        <div id="viewEventCourse" class="mt-1 text-sm text-gray-500">Matemáticas - Álgebra lineal</div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <div class="text-sm font-medium text-gray-500">Fecha y Hora</div>
+                            <div id="viewEventDateTime" class="text-sm text-gray-900">15 Mayo, 2023 - 10:00 AM</div>
+                        </div>
+                        <div>
+                            <div class="text-sm font-medium text-gray-500">Tipo de Evento</div>
+                            <div id="viewEventType" class="text-sm text-gray-900">Examen</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="text-sm font-medium text-gray-500">Descripción</div>
+                        <div id="viewEventDescription" class="text-sm text-gray-900 mt-1">Capítulo 4 - Páginas 120-135. Incluye problemas de matrices y determinantes.</div>
+                    </div>
+                    
+                    <div class="flex items-center text-sm text-gray-500">
+                        <i class="far fa-clock mr-2"></i>
+                        <span id="viewEventRemaining">Falta: 2 días</span>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" id="editEventBtn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Editar
+                    </button>
+                    <button type="button" id="deleteEventBtn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Eliminar
+                    </button>
+                    <button type="button" id="closeEventBtn" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar toggle for mobile
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('sidebar-open');
+        });
+
+        // Calendar navigation
+        const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        let currentDate = new Date();
+        
+        function updateCalendarHeader() {
+            document.getElementById('currentMonthYear').textContent = 
+                `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+        }
+        
+        document.getElementById('prevMonth').addEventListener('click', function() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            updateCalendarHeader();
+            // In a real app, you would update the calendar days here
+        });
+        
+        document.getElementById('nextMonth').addEventListener('click', function() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            updateCalendarHeader();
+            // In a real app, you would update the calendar days here
+        });
+        
+        document.getElementById('todayBtn').addEventListener('click', function() {
+            currentDate = new Date();
+            updateCalendarHeader();
+            // In a real app, you would update the calendar days here
+        });
+
+        // Calendar view toggle
+        document.getElementById('dayView').addEventListener('click', function() {
+            // In a real app, this would switch to day view
+            alert("Vista diaria no implementada en este demo");
+        });
+        
+        document.getElementById('weekView').addEventListener('click', function() {
+            // In a real app, this would switch to week view
+            alert("Vista semanal no implementada en este demo");
+        });
+        
+        document.getElementById('monthView').addEventListener('click', function() {
+            // This is already month view
+        });
+
+        // Event modals
+        const eventModal = document.getElementById('eventModal');
+        const viewEventModal = document.getElementById('viewEventModal');
+        
+        document.getElementById('addEventBtn').addEventListener('click', function() {
+            // Reset form
+            document.getElementById('eventForm').reset();
+            // Set default date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('eventDate').value = today;
+            // Show modal
+            eventModal.classList.remove('hidden');
+        });
+        
+        document.getElementById('cancelEventBtn').addEventListener('click', function() {
+            eventModal.classList.add('hidden');
+        });
+        
+        document.getElementById('closeEventBtn').addEventListener('click', function() {
+            viewEventModal.classList.add('hidden');
+        });
+        
+        document.getElementById('saveEventBtn').addEventListener('click', function() {
+            // Here you would save the event to your data store
+            // For this demo, we'll just close the modal
+            eventModal.classList.add('hidden');
+            alert("Evento guardado (simulado)");
+        });
+
+        // Simulate clicking on a calendar event
+        document.querySelectorAll('.fc-event').forEach(event => {
+            event.addEventListener('click', function() {
+                // In a real app, you would get the actual event data
+                document.getElementById('viewEventTitle').textContent = this.textContent;
+                
+                // Set other event details based on the type
+                if (this.classList.contains('bg-red-100')) {
+                    document.getElementById('viewEventPriority').textContent = "Alta Prioridad";
+                    document.getElementById('viewEventPriority').className = "px-2 py-1 text-xs rounded-full bg-red-100 text-red-800";
+                    document.getElementById('viewEventType').textContent = "Examen";
+                    document.getElementById('viewEventCourse').textContent = "Matemáticas - Álgebra lineal";
+                    document.getElementById('viewEventDescription').textContent = "Capítulo 4 - Páginas 120-135. Incluye problemas de matrices y determinantes.";
+                } else if (this.classList.contains('bg-blue-100')) {
+                    document.getElementById('viewEventPriority').textContent = "Media Prioridad";
+                    document.getElementById('viewEventPriority').className = "px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800";
+                    document.getElementById('viewEventType').textContent = "Tarea";
+                    document.getElementById('viewEventCourse').textContent = "Física - Termodinámica";
+                    document.getElementById('viewEventDescription').textContent = "Resolver problemas del capítulo 3. Entregar en formato PDF.";
+                } else if (this.classList.contains('bg-green-100')) {
+                    document.getElementById('viewEventPriority').textContent = "Media Prioridad";
+                    document.getElementById('viewEventPriority').className = "px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800";
+                    document.getElementById('viewEventType').textContent = "Proyecto";
+                    document.getElementById('viewEventCourse').textContent = "Programación - Sistema de gestión";
+                    document.getElementById('viewEventDescription').textContent = "Desarrollar un sistema de gestión escolar usando Java y MySQL.";
+                } else if (this.classList.contains('bg-purple-100')) {
+                    document.getElementById('viewEventPriority').textContent = "Baja Prioridad";
+                    document.getElementById('viewEventPriority').className = "px-2 py-1 text-xs rounded-full bg-green-100 text-green-800";
+                    document.getElementById('viewEventType').textContent = "Lectura";
+                    document.getElementById('viewEventCourse').textContent = "Historia - Revolución Industrial";
+                    document.getElementById('viewEventDescription').textContent = "Leer capítulo 7 y preparar resumen para discusión en clase.";
+                } else {
+                    document.getElementById('viewEventPriority').textContent = "Baja Prioridad";
+                    document.getElementById('viewEventPriority').className = "px-2 py-1 text-xs rounded-full bg-green-100 text-green-800";
+                    document.getElementById('viewEventType').textContent = "Reunión";
+                    document.getElementById('viewEventCourse').textContent = "General";
+                    document.getElementById('viewEventDescription').textContent = "Reunión del grupo de estudio para preparar el examen final.";
+                }
+                
+                document.getElementById('viewEventDateTime').textContent = "15 Mayo, 2023 - 10:00 AM";
+                document.getElementById('viewEventRemaining').textContent = "Falta: 2 días";
+                
+                viewEventModal.classList.remove('hidden');
+            });
+        });
+
+        // Delete event
+        document.getElementById('deleteEventBtn').addEventListener('click', function() {
+            if (confirm("¿Estás seguro de que deseas eliminar este evento?")) {
+                viewEventModal.classList.add('hidden');
+                alert("Evento eliminado (simulado)");
+            }
+        });
+
+        // Edit event
+        document.getElementById('editEventBtn').addEventListener('click', function() {
+            viewEventModal.classList.add('hidden');
+            // In a real app, you would populate the form with the event data
+            eventModal.classList.remove('hidden');
+        });
+
+        // Initialize
+        updateCalendarHeader();
+    </script>
+</body>
+</html>
